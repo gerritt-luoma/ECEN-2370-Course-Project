@@ -79,20 +79,23 @@ static void leuart_txc(LEUART_STATE_MACHINE *leuart_state);
  ******************************************************************************/
 
 void leuart_open(LEUART_TypeDef *leuart, LEUART_OPEN_STRUCT *leuart_settings){
+	// Enable the clock for the selected LEUART
 	if(leuart == LEUART0) {
 		CMU_ClockEnable(cmuClock_LEUART0, true);
 	}
 	else {
+		// We are only using LEUART0
 		EFM_ASSERT(false);
 	}
-	//verify proper clock operation
+
+	// verify proper clock operation
 	if ((leuart->STARTFRAME & 0x01) == 0) {
 		leuart->STARTFRAME = 0x01;
 		while(leuart->SYNCBUSY);
-		EFM_ASSERT(leuart->STARTFRAME & 0x01);
-		leuart->STARTFRAME = 0x00;
-		while(leuart->SYNCBUSY);
 	}
+	EFM_ASSERT(leuart->STARTFRAME & 0x01);
+	leuart->STARTFRAME = 0x00;
+	while(leuart->SYNCBUSY);
 
 	LEUART_Init_TypeDef leuart_in;
 	leuart_in.baudrate = leuart_settings->baudrate;
@@ -106,19 +109,25 @@ void leuart_open(LEUART_TypeDef *leuart, LEUART_OPEN_STRUCT *leuart_settings){
 
 	while(leuart->SYNCBUSY);
 
+	// Set the route location and enable pins
 	leuart->ROUTELOC0 = leuart_settings->rx_loc | leuart_settings->tx_loc;
 	leuart->ROUTEPEN = (leuart_settings->rx_pin_en * leuart_settings->rx_en) | (leuart_settings->tx_pin_en * leuart_settings->tx_en);
 
+	// Clear rx and tx buffers
 	leuart->CMD = LEUART_CMD_CLEARRX | LEUART_CMD_CLEARTX;
 	while(leuart->SYNCBUSY);
 
-	if((leuart_settings->enable & LEUART_CMD_TXEN) != false) {
-		while((leuart->STATUS & LEUART_STATUS_TXENS) == false);
+	// Enable rx and tx
+	if(leuart_settings->enable) {
+		leurat->CMD = LEUART_CMD_TXEN;
+		while(!(leuart->STATUS & LEUART_STATUS_TXENS));
 	}
-	if((leuart_settings->enable & LEUART_CMD_RXEN) != false) {
-		while((leuart->STATUS & LEUART_STATUS_RXENS) == false);
+	if(leuart_settings->enable) {
+		leuart->CMD = LEUART_CMD_RXEN;
+		while(!(leuart->STATUS & LEUART_STATUS_RXENS));
 	}
 
+	// Enable leuart
 	LEUART_Enable(leuart, leuart_settings->enable);
 
 	// clear and enable TXBL interrupts

@@ -25,11 +25,11 @@
 
 #define HM10_LEUART0		LEUART0
 #define HM10_BAUDRATE		9600
-#define	HM10_DATABITS		leuartDatabits8
-#define HM10_ENABLE			leuartEnable
-#define HM10_PARITY			leuartNoParity
+#define	HM10_DATABITS		leuartDatabits8 // 8 data bits
+#define HM10_ENABLE			leuartEnable // Enable RX/TX when init completed
+#define HM10_PARITY			leuartNoParity // No parity bits in use
 #define HM10_REFFREQ		0				// use reference clock
-#define HM10_STOPBITS		leuartStopbits1
+#define HM10_STOPBITS		leuartStopbits1 // 1 stop bit
 
 // Route to location 18 (expansion header)
 #define LEUART0_TX_ROUTE	LEUART_ROUTELOC0_TXLOC_LOC18   	// Route to PD11

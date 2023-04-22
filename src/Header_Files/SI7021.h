@@ -24,9 +24,10 @@
 // defined files
 //***********************************************************************************
 
-#define SI7021_FREQ 			I2C_FREQ_FAST_MAX
-#define SI7021_CLHR 			i2cClockHLRAsymetric
-#define SI7021_I2C				I2C1
+// I2C setup
+#define SI7021_FREQ 			I2C_FREQ_FAST_MAX // 400 kHz is the max SCL for the SI7021
+#define SI7021_CLHR 			i2cClockHLRAsymetric // Asymmetric clock low/high ratio 6:3
+#define SI7021_I2C				I2C1 // I2C peripheral to use
 #define SI7021_COMMAND			0xF5 // Humidity no hold master mode command
 #define SI7021_SLAVE_ADDRESS	0x40 // Slave address for SI7021
 
@@ -34,6 +35,7 @@
 #define SI7021_READ_COMMAND		0xE7 // Read previous temperature or humidity command
 #define SI7021_WRITE_COMMAND	0xE6 // Write user register 1 command
 
+// SI7021 TDD commands
 #define RESET_VALUE 			0x3A
 #define RESOLUTION_CONFIG		0x01
 #define RESOLUTION_FOR_8_12		0x3B

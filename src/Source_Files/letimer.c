@@ -81,8 +81,11 @@ void letimer_pwm_open(LETIMER_TypeDef *letimer, APP_LETIMER_PWM_TypeDef *app_let
 		CMU_ClockEnable(cmuClock_LETIMER0, true);
 	}
 	else {
+		// We should never get here since the LETIMER0 is the only LETIMER peripheral being used
 		EFM_ASSERT(false);
 	}
+
+	// Stop the LETIMER before configuring it
 	letimer_start(letimer, false);
 
 	/* Use EFM_ASSERT statements to verify whether the LETIMER clock tree is properly
@@ -148,14 +151,15 @@ void letimer_pwm_open(LETIMER_TypeDef *letimer, APP_LETIMER_PWM_TypeDef *app_let
 	 * Use the values from app_letimer_struct input argument for ROUTELOC0 and ROUTEPEN enable
 	 */
 
+	// Route the LETIMER out to the correct pin and enable output
 	letimer->ROUTELOC0 = app_letimer_struct->out_pin_route0 | app_letimer_struct->out_pin_route1;
 	letimer->ROUTEPEN = (LETIMER_ROUTEPEN_OUT0PEN*app_letimer_struct->out_pin_0_en)| (LETIMER_ROUTEPEN_OUT1PEN*app_letimer_struct->out_pin_1_en);
 
 	letimer->REP0 = 35;
 	letimer->REP1 = 36;
 
-	/* We are not enabling any interrupts at this tie.  If you were, you would enable them now */
 
+	// Enable the LETIMER0 interrupt in the NVIC for user enabled interrupts
 	if(app_letimer_struct->comp0_irq_enable) {
 		letimer->IFC &= ~app_letimer_struct->comp0_cb; // clear
 		letimer->IEN |= app_letimer_struct->comp0_cb; // enable
@@ -172,7 +176,6 @@ void letimer_pwm_open(LETIMER_TypeDef *letimer, APP_LETIMER_PWM_TypeDef *app_let
 		NVIC_EnableIRQ(LETIMER0_IRQn);
 	}
 
-	/* We will not enable or turn-on the LETIMER0 at this time */
 
 	if((LETIMER_STATUS_RUNNING & letimer->STATUS)) {
 		sleep_block_mode(LETIMER_EM);
@@ -204,7 +207,7 @@ void letimer_start(LETIMER_TypeDef *letimer, bool enable){
 		while(letimer->SYNCBUSY);
 	}
 	else if((LETIMER_STATUS_RUNNING & letimer->STATUS) & !enable) {
-		sleep_block_mode(LETIMER_EM);
+		sleep_unblock_mode(LETIMER_EM);
 		LETIMER_Enable(letimer, enable);
 		while(letimer->SYNCBUSY);
 	}

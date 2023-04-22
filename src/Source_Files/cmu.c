@@ -47,23 +47,26 @@
 
 void cmu_open(void){
 
+		// Enable the High Frequency Peripheral Clock
 		CMU_ClockEnable(cmuClock_HFPER, true);
 
 		// By default, Low Frequency Resistor Capacitor Oscillator, LFRCO, is enabled,
 		// Disable the LFRCO oscillator
-		CMU_OscillatorEnable(cmuOsc_LFRCO , false, false);	 // What is the enumeration required for LFRCO?
+		CMU_OscillatorEnable(cmuOsc_LFRCO , false, false);
 
 		// Enable the Low Frequency Crystal Oscillator, LFXO
-		CMU_OscillatorEnable(cmuOsc_LFXO, true, true);	// What is the enumeration required for LFXO?
+		CMU_OscillatorEnable(cmuOsc_LFXO, true, true);
+
+		// Select the LFXO as the clock source for the LFB clock tree for LEUART0
 		CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_LFXO);
 
 		// No requirement to enable the ULFRCO oscillator.  It is always enabled in EM0-4H
 
-		// Route LF clock to LETIMER0 clock tree
-		CMU_ClockSelectSet(cmuClock_LFA , cmuSelect_ULFRCO);	// What clock tree does the LETIMER0 reside on?
+		// Select the ULFRCO as the clock source for the LFA clock tree for LETIMER0
+		CMU_ClockSelectSet(cmuClock_LFA , cmuSelect_ULFRCO);
 
 		// Now, you must ensure that the global Low Frequency is enabled
-		CMU_ClockEnable(cmuClock_CORELE, true);	//This enumeration is found in the Lab 2 assignment
+		CMU_ClockEnable(cmuClock_CORELE, true);
 
 }
 

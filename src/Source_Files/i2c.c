@@ -99,15 +99,15 @@ void i2c_open(I2C_TypeDef *i2c_def, I2C_OPEN_STRUCT *i2c_setup) {
 	else if(i2c_def == I2C1) {
 		CMU_ClockEnable(cmuClock_I2C1, true);
 	}
-	//verify proper clock operation
+	// Test if clock is enabled and we can read/set/clear interrupt flags
 	if ((i2c_def->IF & 0x01) == 0) {
 		i2c_def->IFS = 0x01;
 		EFM_ASSERT(i2c_def->IF & 0x01);
 		i2c_def->IFC = 0x01;
 	} else {
 		i2c_def->IFC = 0x01;
-		EFM_ASSERT(!(i2c_def->IF & 0x01));
 	}
+	EFM_ASSERT(!(i2c_def->IF & 0x01));
 
 	I2C_Init_TypeDef i2c_init;
 
@@ -119,12 +119,14 @@ void i2c_open(I2C_TypeDef *i2c_def, I2C_OPEN_STRUCT *i2c_setup) {
 
 	I2C_Init(i2c_def, &i2c_init);
 
+	// Route the I2C to the correct pins and enable pins
 	i2c_def->ROUTELOC0 = i2c_setup->SCL_route | i2c_setup->SDA_route;
 	i2c_def->ROUTEPEN = (I2C_ROUTEPEN_SCLPEN*i2c_setup->SCLPEN | I2C_ROUTEPEN_SDAPEN*i2c_setup->SDAPEN);
 
+	// Reset the bus
 	i2c_bus_reset(i2c_def);
 
-	// clear and enable ACK interrupts => comment more
+	// clear and enable ACK interrupts
 	i2c_def->IFC = I2C_IF_ACK;
 	i2c_def->IEN |= I2C_IF_ACK;
 
@@ -136,11 +138,12 @@ void i2c_open(I2C_TypeDef *i2c_def, I2C_OPEN_STRUCT *i2c_setup) {
 	i2c_def->IFC = I2C_IF_MSTOP;
 	i2c_def->IEN |= I2C_IF_MSTOP;
 
-	// enable rxdata interrupt
+	// clear and enable rxdata interrupt
+	i2c_def->IFC = I2C_IF_RXDATAV;
 	i2c_def->IEN |= I2C_IF_RXDATAV;
 
 
-
+	// enable interrupts for specific i2c
 	if(i2c_def == I2C0) {
 		NVIC_EnableIRQ(I2C0_IRQn);
 	}

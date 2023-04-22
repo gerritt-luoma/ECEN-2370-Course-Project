@@ -51,19 +51,34 @@ static void app_letimer_pwm_open(float period, float act_period, uint32_t out0_r
  ******************************************************************************/
 
 void app_peripheral_setup(void){
+	// Configure and open the Clock Management Unit
 	cmu_open();
+
+	// Configure and open the gpio pins used for LEDs, I2C, LETIMER, and LEUART
 	gpio_open();
+
+	// Configure and open the scheduler
 	scheduler_open();
+
+	// Configure and open the sleep routines
 	sleep_open();
 
+	// Configure and open the i2c for the si7021
 	si7021_i2c_open();
+
+	// Configure and open the i2c for the veml6030
 	veml6030_i2c_open();
 
+	// Configure and open the pwm from LETIMER0
 	app_letimer_pwm_open(PWM_PER, PWM_ACT_PER, PWM_ROUTE_0, PWM_ROUTE_1);
 
-	ble_open(BLE_RX_DONE_CB, BLE_TX_DONE_CB); //RX DONE, TX DONE
+	// Configure and open the LEUART for BLE
+	ble_open(BLE_RX_DONE_CB, BLE_TX_DONE_CB);
+
+	// Block the system EM level
 	sleep_block_mode(SYSTEM_BLOCK_EM);
 
+	// Schedule the boot up event
 	add_scheduled_event(BOOT_UP_CB);
 }
 
@@ -103,11 +118,11 @@ void app_letimer_pwm_open(float period, float act_period, uint32_t out0_route, u
 	letimerstruct.out_pin_0_en = false;
 	letimerstruct.out_pin_1_en = false;
 
-	letimerstruct.comp0_irq_enable = false; //disable
+	letimerstruct.comp0_irq_enable = false; // disable comp0 interrupt for now
 	letimerstruct.comp0_cb = LETIMER0_COMP0_CB;
-	letimerstruct.comp1_irq_enable = false; //disable
+	letimerstruct.comp1_irq_enable = false; // disable comp1 interrupt for now
 	letimerstruct.comp1_cb = LETIMER0_COMP1_CB;
-	letimerstruct.uf_irq_enable = true; 	//enable
+	letimerstruct.uf_irq_enable = true; 	// enable underflow interrupt to start sensor reads
 	letimerstruct.uf_cb = LETIMER0_UF_CB;
 
 	letimer_pwm_open(LETIMER0, &letimerstruct);
@@ -128,15 +143,6 @@ void app_letimer_pwm_open(float period, float act_period, uint32_t out0_route, u
  ******************************************************************************/
 
 void scheduled_letimer0_uf_cb (void){
-//	uint32_t lowest = current_block_energy_mode();
-//	 sleep_unblock_mode(lowest);
-//	 if (lowest < 4) {
-//		 sleep_block_mode(lowest + 1);
-//	 }
-//	 else {
-//		 sleep_block_mode(EM0);
-//	 }
-
 	EFM_ASSERT(get_scheduled_events() & LETIMER0_UF_CB);
 	remove_scheduled_event(LETIMER0_UF_CB);
 
