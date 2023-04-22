@@ -119,7 +119,7 @@ void leuart_open(LEUART_TypeDef *leuart, LEUART_OPEN_STRUCT *leuart_settings){
 
 	// Enable rx and tx
 	if(leuart_settings->enable) {
-		leurat->CMD = LEUART_CMD_TXEN;
+		leuart->CMD = LEUART_CMD_TXEN;
 		while(!(leuart->STATUS & LEUART_STATUS_TXENS));
 	}
 	if(leuart_settings->enable) {
