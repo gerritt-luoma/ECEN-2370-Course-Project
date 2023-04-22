@@ -27,12 +27,12 @@
 #define SI7021_FREQ 			I2C_FREQ_FAST_MAX
 #define SI7021_CLHR 			i2cClockHLRAsymetric
 #define SI7021_I2C				I2C1
-#define SI7021_COMMAND			0xF5 //humidity
-#define SI7021_SLAVE_ADDRESS	0x40
+#define SI7021_COMMAND			0xF5 // Humidity no hold master mode command
+#define SI7021_SLAVE_ADDRESS	0x40 // Slave address for SI7021
 
-#define SI7021_TEMP_COMMAND		0xF3
-#define SI7021_READ_COMMAND		0xE7
-#define SI7021_WRITE_COMMAND	0xE6
+#define SI7021_TEMP_COMMAND		0xF3 // Temperature no hold master mode command
+#define SI7021_READ_COMMAND		0xE7 // Read previous temperature or humidity command
+#define SI7021_WRITE_COMMAND	0xE6 // Write user register 1 command
 
 #define RESET_VALUE 			0x3A
 #define RESOLUTION_CONFIG		0x01

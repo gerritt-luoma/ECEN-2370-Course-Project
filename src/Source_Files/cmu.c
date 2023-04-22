@@ -53,7 +53,7 @@ void cmu_open(void){
 		// Disable the LFRCO oscillator
 		CMU_OscillatorEnable(cmuOsc_LFRCO , false, false);	 // What is the enumeration required for LFRCO?
 
-		// Disable the Low Frequency Crystal Oscillator, LFXO
+		// Enable the Low Frequency Crystal Oscillator, LFXO
 		CMU_OscillatorEnable(cmuOsc_LFXO, true, true);	// What is the enumeration required for LFXO?
 		CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_LFXO);
 

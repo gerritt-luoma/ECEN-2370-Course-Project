@@ -31,8 +31,9 @@
 #define HM10_REFFREQ		0				// use reference clock
 #define HM10_STOPBITS		leuartStopbits1
 
-#define LEUART0_TX_ROUTE	LEUART_ROUTELOC0_TXLOC_LOC18   	// Route to ...
-#define LEUART0_RX_ROUTE	LEUART_ROUTELOC0_RXLOC_LOC18   	// Route to ...
+// Route to location 18 (expansion header)
+#define LEUART0_TX_ROUTE	LEUART_ROUTELOC0_TXLOC_LOC18   	// Route to PD11
+#define LEUART0_RX_ROUTE	LEUART_ROUTELOC0_RXLOC_LOC18   	// Route to PD10
 
 
 //***********************************************************************************

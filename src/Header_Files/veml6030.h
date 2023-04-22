@@ -24,13 +24,13 @@
 // defined files
 //***********************************************************************************
 
-#define VEML6030_FREQ 			I2C_FREQ_FAST_MAX //idk
-#define VEML6030_CLHR 			i2cClockHLRAsymetric //idk
-#define VEML6030_I2C			I2C0
+#define VEML6030_FREQ 			I2C_FREQ_FAST_MAX // 400kHz
+#define VEML6030_CLHR 			i2cClockHLRAsymetric // Denote the clock ratio is 6:3
+#define VEML6030_I2C			I2C0 // Use I2C0
 //0 first - do a 2 byte write at boot up
-#define START_UP_COMMAND		0x00 //initial write
-#define VEML6030_ADDRESS 		0x48
-#define VEML6030_COMMAND		0x04 //read ALS
+#define START_UP_COMMAND		0x00 // Start up command
+#define VEML6030_ADDRESS 		0x48 // 7 bit address
+#define VEML6030_COMMAND		0x04 // Read Command
 
 //***********************************************************************************
 // global variables
