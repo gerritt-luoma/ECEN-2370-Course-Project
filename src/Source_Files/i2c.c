@@ -23,8 +23,8 @@
 
 
 
-static I2C_STATE_MACHINE 	 i2c_state; //for light sensor = I2C0
-static I2C_STATE_MACHINE	 i2c_state_1; //for SI7021 = I2C1
+static I2C_STATE_MACHINE 	 i2c_veml; //for light sensor = I2C0
+static I2C_STATE_MACHINE	 i2c_si7021; //for SI7021 = I2C1
 //static uint32_t			 SI7021_READ_CB;
 
 
@@ -193,32 +193,32 @@ void i2c_start(I2C_TypeDef *i2c, uint32_t address, uint32_t reg, bool RW, uint32
 	sleep_block_mode(I2C_EM_BLOCK);
 
 	if(i2c == I2C1) { //si7021
-		i2c_state_1.i2c_def = i2c;
-		i2c_state_1.slave_address = address;
-		i2c_state_1.slave_reg = reg;
-		i2c_state_1.w_r_store = loc;
-		i2c_state_1.w_r = RW;
-		i2c_state_1.bytes_count = byte_count;
+		i2c_si7021.i2c_def = i2c;
+		i2c_si7021.slave_address = address;
+		i2c_si7021.slave_reg = reg;
+		i2c_si7021.w_r_store = loc;
+		i2c_si7021.w_r = RW;
+		i2c_si7021.bytes_count = byte_count;
 
-		i2c_state_1.state = StartCommand;
-		i2c_state_1.i2c_def->CMD = I2C_CMD_START;
-		i2c_state_1.i2c_def->TXDATA = (i2c_state_1.slave_address << 1) | I2C_WRITE;
-		i2c_state_1.i2c_busy = true;
-		i2c_state_1.callback = CallBack;
+		i2c_si7021.state = StartCommand;
+		i2c_si7021.i2c_def->CMD = I2C_CMD_START;
+		i2c_si7021.i2c_def->TXDATA = (i2c_si7021.slave_address << 1) | I2C_WRITE;
+		i2c_si7021.i2c_busy = true;
+		i2c_si7021.callback = CallBack;
 	}
 	else if(i2c == I2C0) { //veml6030
-		i2c_state.i2c_def = i2c;
-		i2c_state.slave_address = address;
-		i2c_state.slave_reg = reg;
-		i2c_state.w_r_store = loc;
-		i2c_state.w_r = RW;
-		i2c_state.bytes_count = byte_count;
+		i2c_veml.i2c_def = i2c;
+		i2c_veml.slave_address = address;
+		i2c_veml.slave_reg = reg;
+		i2c_veml.w_r_store = loc;
+		i2c_veml.w_r = RW;
+		i2c_veml.bytes_count = byte_count;
 
-		i2c_state.state = StartCommand;
-		i2c_state.i2c_def->CMD = I2C_CMD_START;
-		i2c_state.i2c_def->TXDATA = (i2c_state.slave_address << 1) | I2C_WRITE;
-		i2c_state.i2c_busy = true;
-		i2c_state.callback = CallBack;
+		i2c_veml.state = StartCommand;
+		i2c_veml.i2c_def->CMD = I2C_CMD_START;
+		i2c_veml.i2c_def->TXDATA = (i2c_veml.slave_address << 1) | I2C_WRITE;
+		i2c_veml.i2c_busy = true;
+		i2c_veml.callback = CallBack;
 	}
 
 
@@ -250,16 +250,16 @@ void I2C0_IRQHandler(void) {
 	 I2C0->IFC = int_flag;
 
 	 if (int_flag & I2C_IF_ACK){
-		 i2c_ack(&i2c_state);
+		 i2c_ack(&i2c_veml);
 	 }
 	 if (int_flag & I2C_IF_NACK){
-		 i2c_nack(&i2c_state);
+		 i2c_nack(&i2c_veml);
 	 }
 	 if (int_flag & I2C_IF_RXDATAV){
-		 i2c_rxdatav(&i2c_state);
+		 i2c_rxdatav(&i2c_veml);
 	 }
 	 if (int_flag & I2C_IF_MSTOP){
-	 	 i2c_mstop(&i2c_state);
+	 	 i2c_mstop(&i2c_veml);
 	 }
 }
 
@@ -287,16 +287,16 @@ void I2C1_IRQHandler(void) {
 	 I2C1->IFC = int_flag;
 
 	 if (int_flag & I2C_IF_ACK){
-		 i2c_ack(&i2c_state_1);
+		 i2c_ack(&i2c_si7021);
 	 }
 	 if (int_flag & I2C_IF_NACK){
-		 i2c_nack(&i2c_state_1);
+		 i2c_nack(&i2c_si7021);
 	 }
 	 if (int_flag & I2C_IF_RXDATAV){
-		 i2c_rxdatav(&i2c_state_1);
+		 i2c_rxdatav(&i2c_si7021);
 	 }
 	 if (int_flag & I2C_IF_MSTOP){
-	 	 i2c_mstop(&i2c_state_1);
+	 	 i2c_mstop(&i2c_si7021);
 	 }
 }
 
@@ -445,16 +445,33 @@ static void i2c_rxdatav (I2C_STATE_MACHINE *i2c_state){
 		}
 		case EndSensing: {
 			i2c_state->bytes_count -= 1;
-			if(i2c_state->bytes_count > 0){
-				*i2c_state->w_r_store = (i2c_state->i2c_def->RXDATA) << (8 * i2c_state->bytes_count);
+			// Handle si7021 reads.  MS Byte first, LS Byte second
+			if(i2c_state->i2c_def == i2c_si7021.i2c_def) {
+				if(i2c_state->bytes_count > 0){
+					*i2c_state->w_r_store = (i2c_state->i2c_def->RXDATA) << (8 * i2c_state->bytes_count);
+				}
+				else{
+					*i2c_state->w_r_store |= i2c_state->i2c_def->RXDATA;
+				}
+			}
+			// Handle VEML6030 reads.  LS Byte first, MS Byte second
+			else {
+				if(i2c_state->bytes_count > 0) {
+					*i2c_state->w_r_store = i2c_state->i2c_def->RXDATA;
+				}
+				else {
+					*i2c_state->w_r_store |= (i2c_state->i2c_def->RXDATA) << (8 * i2c_state->bytes_count);
+				}
+			}
+
+			// Both VEML6030 and SI7021 have 2 bytes of data and the same communication to stop
+			if(i2c_state->bytes_count > 0) {
 				i2c_state->i2c_def->CMD = I2C_CMD_ACK;
 			}
-			else{
-				*i2c_state->w_r_store |= i2c_state->i2c_def->RXDATA;
+			else {
 				i2c_state->i2c_def->CMD = I2C_CMD_NACK;
 				i2c_state->i2c_def->CMD = I2C_CMD_STOP;
 				i2c_state->state = Stop;
-				//i2c_state->i2c_def->IFS &= I2C_IFS_MSTOP;
 			}
 			break;
 		}
