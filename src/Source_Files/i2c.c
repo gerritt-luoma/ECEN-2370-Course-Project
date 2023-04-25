@@ -548,8 +548,8 @@ static void i2c_mstop (I2C_STATE_MACHINE *i2c_state){
  ******************************************************************************/
 
 bool check_busy_0(I2C_TypeDef *i2c) {
-	if (i2c_state.i2c_def == i2c){
-		return i2c_state.i2c_busy;
+	if (i2c_veml.i2c_def == i2c){
+		return i2c_veml.i2c_busy;
 	}
 	return true;
 }
@@ -567,8 +567,8 @@ bool check_busy_0(I2C_TypeDef *i2c) {
  ******************************************************************************/
 
 bool check_busy_1(I2C_TypeDef *i2c) {
-	if (i2c_state_1.i2c_def == i2c){
-		return i2c_state_1.i2c_busy;
+	if (i2c_si7021.i2c_def == i2c){
+		return i2c_si7021.i2c_busy;
 	}
 	return true;
 }
