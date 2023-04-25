@@ -146,21 +146,17 @@ void scheduled_letimer0_uf_cb (void){
 	EFM_ASSERT(get_scheduled_events() & LETIMER0_UF_CB);
 	remove_scheduled_event(LETIMER0_UF_CB);
 
-	//counter 0 1 2
 	if (i2c_counter == 0) {
 		si7021_h_read(SI7021_H_READ_CB);
 	}
 	if (i2c_counter == 1) {
 		si7021_t_read(SI7021_T_READ_CB);
-		//while(leuart_tx_busy(LEUART0));
 	}
 	if (i2c_counter == 2) {
 		veml6030_read(VEML6030_READ_CB);
+		i2c_counter = -1;
 	}
 	i2c_counter++;
-	if (i2c_counter == 3) {
-		i2c_counter = 0;
-	}
 }
 
 /***************************************************************************//**
@@ -219,12 +215,6 @@ void humidity_done_cb (void){
 	EFM_ASSERT(get_scheduled_events() & SI7021_H_READ_CB);
 	remove_scheduled_event(SI7021_H_READ_CB);
 	float humidity = si7021_humidity_conversion();
-//	if (humidity >= 30.0) {
-//		GPIO_PinModeSet(LED1_PORT, LED1_PIN, LED1_GPIOMODE, LED1_ON);
-//	}
-//	else {
-//		GPIO_PinOutClear(LED1_PORT, LED1_PIN);
-//	}
 	char str[80];
 	sprintf(str, "%4.1f%% humidity\n", humidity);
 	ble_write(str);
@@ -249,12 +239,6 @@ void temp_done_cb (void){
 	EFM_ASSERT(get_scheduled_events() & SI7021_T_READ_CB);
 	remove_scheduled_event(SI7021_T_READ_CB);
 	float temp = si7021_temperature_conversion();
-//	if (humidity >= 30.0) {
-//		GPIO_PinModeSet(LED1_PORT, LED1_PIN, LED1_GPIOMODE, LED1_ON);
-//	}
-//	else {
-//		GPIO_PinOutClear(LED1_PORT, LED1_PIN);
-//	}
 	char str[80];
 	sprintf(str, "%4.1f F\n", temp);
 	ble_write(str);
@@ -279,12 +263,6 @@ void light_done_cb (void){
 	EFM_ASSERT(get_scheduled_events() & VEML6030_READ_CB);
 	remove_scheduled_event(VEML6030_READ_CB);
 	int light = veml6030_conversion();
-//	if (humidity >= 30.0) {
-//		GPIO_PinModeSet(LED1_PORT, LED1_PIN, LED1_GPIOMODE, LED1_ON);
-//	}
-//	else {
-//		GPIO_PinOutClear(LED1_PORT, LED1_PIN);
-//	}
 	char str[80];
 	unsigned int ulight = (unsigned int) light;
 	sprintf(str, "%3u lux\n", ulight);

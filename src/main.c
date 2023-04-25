@@ -29,10 +29,8 @@ int main(void)
 	/* Call application program to open / initialize all required peripheral */
 	app_peripheral_setup();
 	EFM_ASSERT(get_scheduled_events() & BOOT_UP_CB);
-	/* Infinite blink loop */
+	/* Infinite loop */
 	while (1) {
-	//	  EMU_EnterEM1();
-	//	  EMU_EnterEM2(true);
 		if (!get_scheduled_events()) {
 			CORE_DECLARE_IRQ_STATE;
 			CORE_ENTER_CRITICAL();

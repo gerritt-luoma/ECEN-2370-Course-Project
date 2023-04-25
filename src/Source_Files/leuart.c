@@ -130,7 +130,7 @@ void leuart_open(LEUART_TypeDef *leuart, LEUART_OPEN_STRUCT *leuart_settings){
 	// Enable leuart
 	LEUART_Enable(leuart, leuart_settings->enable);
 
-	// clear and enable TXBL interrupts
+	// clear TXBL interrupts
 	LEUART0->IFC = LEUART_IF_TXBL;
 
 
