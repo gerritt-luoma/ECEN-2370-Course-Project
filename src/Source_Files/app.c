@@ -149,10 +149,10 @@ void scheduled_letimer0_uf_cb (void){
 	if (i2c_counter == 0) {
 		si7021_h_read(SI7021_H_READ_CB);
 	}
-	if (i2c_counter == 1) {
+	else if (i2c_counter == 1) {
 		si7021_t_read(SI7021_T_READ_CB);
 	}
-	if (i2c_counter == 2) {
+	else {
 		veml6030_read(VEML6030_READ_CB);
 		i2c_counter = -1;
 	}
